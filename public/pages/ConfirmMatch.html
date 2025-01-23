@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Confirm your matches</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="../style.css">
+  <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="navigation"></div>
+<div class="flex_container">
+
+  <h2>
+    Showing your received unconfirmed matches
+  </h2>
+  <br>
+  <table id="match">
+    <tr>
+      <th>Player 1</th>
+      <th>Player 2</th>
+      <th>Player 1's Character</th>
+      <th>Player 2's Character</th>
+      <th>Winner</th>
+      <th>Confirm Match</th>
+    </tr>
+  </table>
+
+
+  <h2>
+    Showing your sent unconfirmed matches
+  </h2>
+  <br>
+  <table id="match2">
+    <tr>
+      <th>Player 1</th>
+      <th>Player 2</th>
+      <th>Player 1's Character</th>
+      <th>Player 2's Character</th>
+      <th>Winner</th>
+    </tr>
+  </table>
+</div>
+<script>
+  $(function () {
+    $("#navigation").load("navigation.html");
+
+    function confirmMatch(id) {
+      $.ajax({
+        type: "POST",
+        url: "http://localhost:3000/match/confirmMatch/" + id,
+        headers: {'Authorization': 'Bearer ' + localStorage.getItem('jwtToken')},
+        success: function (result) {
+          if (result)
+            alert(result['message']);
+            window.location.reload();
+        },
+        error: function (xhr, status, error) {
+          alert(xhr['responseJSON']['message']);
+        },
+      });
+    }
+
+    window.confirmMatch = confirmMatch;
+
+    function loadData() {
+      $.ajax({
+        type: "GET",
+        url: "http://localhost:3000/match/unconfirmedMatches",
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('jwtToken') },
+
+        success: function (result) {
+          var table = $("#match");
+          result["asPlayer2"].forEach(item => {
+            table.append(`<tr>
+                             <td>${item.player_1}</td>
+                             <td>${item.player_2}</td>
+                             <td>${item.character_1.name}</td>
+                             <td>${item.character_2.name}</td>
+                             <td>${item.Winner}</td>
+                             <td><button onclick="confirmMatch('${item._id}')">
+                                    Confirm
+                        </button></td>
+
+                            </tr>`)
+          });
+
+          var table2 = $("#match2");
+          result["asPlayer1"].forEach(item => {
+            table2.append(`<tr>
+                             <td>${item.player_1}</td>
+                             <td>${item.player_2}</td>
+                             <td>${item.character_1.name}</td>
+                             <td>${item.character_2.name}</td>
+                             <td>${item.Winner}</td>
+                            </tr>`)
+          });
+        },
+
+        error: function (xhr, status, error) {
+          console.error(`Error: ${error}`);
+          console.error(`Status: ${status}`);
+          console.error(`Response: ${xhr.responseText}`);
+          alert("An error occurred while fetching data. Please check the console for details.");
+        },
+
+      });
+    }
+
+
+
+    loadData();
+  });
+</script>
+</body>
+</html>

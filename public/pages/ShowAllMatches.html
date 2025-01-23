@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Show all users</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="../style.css">
+  <script src="../Utils.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="navigation"></div>
+<div class="flex_container">
+
+  <h2>
+    Showing all Users
+  </h2>
+  <br>
+  <table id="match">
+    <tr>
+      <th>Player 1</th>
+      <th>Player 2</th>
+      <th>Player 1's Character</th>
+      <th>Player 2's Character</th>
+      <th>Winner</th>
+      <th>Is Confirmed</th>
+    </tr>
+  </table>
+</div>
+<script>
+  $(function () {
+    $("#navigation").load("navigation.html");
+
+    function loadData() {
+      $.ajax({
+        type: "GET",
+        url: "http://localhost:3000/match/matches",
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('jwtToken') },
+
+        success: function (result) {
+          var table = $("#match");
+          result.forEach(item => {
+            // Extract the icons for character_1
+            const iconImages = extractIconImages([item.character_1]);
+
+            // Start building the table row
+            let rowHTML = `<tr>
+                     <td>${item.player_1}</td>
+                     <td>${item.player_2}</td>
+                     <td>${item.character_1.name}`;
+
+            // Add the icon images for character_1
+            iconImages.forEach(icon => {
+              rowHTML += `<img src='${icon}' alt='${item.character_1.name}' height="25" width="25">`;
+            });
+
+            rowHTML += `</td>
+                <td>${item.character_2.name}`;
+
+            const iconImages2 = extractIconImages([item.character_2]);
+
+            iconImages2.forEach(icon => {
+              rowHTML += `<img src='${icon}' alt='${item.character_2.name}' height="25" width="25">`;
+            });
+
+            rowHTML += `</td>
+                <td>${item.Winner}</td>
+                <td>${item.Confirmed}</td>
+                <td>${item.formattedDate}</td>
+                </tr>`;
+
+            table.append(rowHTML);
+          });
+
+        },
+
+        error: function (xhr, status, error) {
+          console.error(`Error: ${error}`);
+          console.error(`Status: ${status}`);
+          console.error(`Response: ${xhr.responseText}`);
+          alert("An error occurred while fetching data. Please check the console for details.");
+        },
+
+      });
+    }
+
+    loadData();
+  });
+</script>
+</body>
+</html>

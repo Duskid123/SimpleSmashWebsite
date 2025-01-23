@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Front-End File</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="../style.css">
+  <script src="../Utils.js"></script>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="navigation"></div>
+
+<div class="flex_container">
+  <h2>Form: Return character by ID</h2>
+  <form id="getData">
+    <label for="char"></label><input type="text" id="char" placeholder="Enter id#">
+    <br>
+    <button type="button" id="dataformbutton">Get Data</button>
+  </form>
+  <div id="datadiv" class="card-header"></div>
+</div>
+
+<div class="flex_container">
+  <h2>Form: See if named character exists</h2>
+  <form id="getData2">
+    <label for="char2"></label><input type="text" id="char2" placeholder="Enter name#">
+    <br>
+    <button type="button" id="dataformbutton2">Get Data</button>
+  </form>
+</div>
+
+
+<script>
+  $(function(){
+    $("#navigation").load("navigation.html");
+    $("#datadiv").hide();
+
+    $('#dataformbutton').click(function(){
+      const idData = $('#char').val();
+
+      $.ajax({
+        type: "GET",
+        url: "http://localhost:3000/char/id/" + idData,
+        headers: {'Authorization': 'Bearer ' + localStorage.getItem('jwtToken')},
+        success: function (result) {
+
+          $("#datadiv").html("");
+          alert(result.name);
+          $("#datadiv").show();
+          $("#datadiv").append(result.name + `<br>`);
+          const iconImages = extractIconImages([result]); // Pass the current item, not the whole result array
+          iconImages.forEach(icon => {
+            $("#datadiv").append(
+                    `<img src='${icon}' alt='${result.name}'>`
+            );
+          });
+        },
+        error: function (xhr,status,error) {
+          alert(error);
+
+        },
+      });
+    });
+
+    $('#dataformbutton2').click(function(){
+      const nameData = $('#char2').val();
+
+      $.ajax({
+        type: "GET",
+        url: "http://localhost:3000/char/name/" + nameData,
+        headers: {'Authorization': 'Bearer ' + localStorage.getItem('jwtToken')},
+        success: function (result) {
+          if(result)
+            alert(result);
+        },
+        error: function (xhr,status,error) {
+          alert(error);
+          console.log(error);
+        },
+      });
+    });
+  });
+</script>
+<style>
+  input { display:block; }
+</style>
+</body>
+</html>

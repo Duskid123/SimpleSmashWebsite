@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>
+        Contact Us
+    </title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../style.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+</head>
+<body>
+<div id="navigation"></div>
+
+<form id="contactForm" class="flex_container">
+    <div class="flex_container  ">
+        <label for="nameInput"></label><input type="text" id="nameInput" name="nameInput" placeholder="Your Name" required>
+        <br>
+        <label for="emailInput"></label><input type="email" id="emailInput" name="emailInput" placeholder="Your Email" required><br>
+        <label for="messageInput"></label><textarea id="messageInput" name="messageInput" placeholder="Your Message" rows="5" required></textarea><br>
+        <button type="button" id="contactformbutton">Send Message</button>
+        <br>
+    </div>
+</form>
+
+<script>
+    $(document).ready(function() {
+        $("#navigation").load("navigation.html");
+
+        $('#contactForm').validate({
+            rules: {
+                nameInput: { required: true },
+                emailInput: { required: true, email: true },
+                messageInput: { required: true },
+            },
+            messages: {
+                nameInput: { required: "Please provide a name." },
+                emailInput: {
+                    required: "Please provide an email.",
+                    email: "Please enter a valid email."
+                },
+                messageInput: { required: "Please provide a message." },
+            }
+        });
+
+        $('#contactformbutton').click(function(event) {
+            event.preventDefault();
+
+            if ($('#contactForm').valid()) {
+                const name = $('#nameInput').val();
+                const email = $('#emailInput').val();
+                const message = $('#messageInput').val();
+
+                $('#contactformbutton').prop('disabled', true); // Disable button
+
+                $.ajax({
+                    type: "POST",
+                    url: "http://localhost:3000/contact",
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: JSON.stringify({ name, email, message }),
+                    success: function(result) {
+                        alert(result.message);
+                        $('#contactForm')[0].reset(); // Clear form
+                    },
+                    error: function(xhr, status, error) {
+                        let errorMessage = xhr.responseJSON?.message || "An unexpected error occurred.";
+                        alert(`Error: ${errorMessage}`);
+                    },
+                    complete: function() {
+                        $('#contactformbutton').prop('disabled', false); // Re-enable button
+                    }
+                });
+            } else {
+                alert("Please fill out the form correctly.");
+            }
+        });
+    });
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>
+      Log In
+    </title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="../style.css">
+  <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="navigation"></div>
+
+
+<form id="dataForm">
+    <div class="flex_container">
+    <h2>Log In</h2>
+
+    <label for="nameInput"></label><input type="text" id="nameInput" placeholder="Enter your username"><br>
+    <label for="passwordInput"></label><input type="text" id="passwordInput" placeholder="Enter your password"><br>
+    <button type="button" id="dataformbutton">LogIn</button>
+  </div>
+</form>
+
+<script>
+  $(function(){
+    $("#navigation").load("navigation.html");
+
+    $('#dataformbutton').click(function(){
+      const name = $('#nameInput').val();
+      const password = $('#passwordInput').val();
+
+      $.ajax({
+        type: "POST",
+        url: "http://localhost:3000/user/login",
+        dataType: "json",
+        contentType: "application/json",
+        data: JSON.stringify({ username: name, password: password}),
+        success: function (result) {
+            localStorage.setItem('jwtToken', result.token);
+            localStorage.setItem('name', result.username);
+            alert(result.message);
+            localStorage.setItem('isAdmin', result.isAdmin);
+            window.location.reload();
+        },
+        error: function () {
+            alert('Login failed. Please check your credentials.');
+        },
+
+      });
+
+    })
+
+
+
+  });
+</script>
+</body>
+</html>
